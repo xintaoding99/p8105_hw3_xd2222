@@ -111,7 +111,7 @@ brfss %>%
 ```
 
 ## Problem 3
-```{r Accelerometer Data}
+```{r Accelerometer Data, warning = FALSE}
 # Tidying Data and Creating a New Variable
 acc_data <- read_csv("./accel_data.csv") %>% 
   janitor::clean_names() %>% 
@@ -132,19 +132,31 @@ acc_data %>%
   colnames()
 #what's encoding with reasonable varialbe classes?
 
+# This dataset describes the activity count per minute for a 63 year-old male during the course of five weeks
 # After tidying the data, there are 6 varialbes in this dataset: week, day_id,
 # day, activity, activity_count, and day_type There are 50,400 observations in
 # this dataset
 
-# Aggregate accross minutes to create a total activity variable for each day, and create a table showing these total
-acc_data %>% 
-  group_by(day_id) %>%
-  mutate(activity_by_day = sum(activity_count), activity = NULL, activity_count = NULL) %>% 
-  distinct() %>% 
-  knitr::kable()
+# Aggregate accross minutes to create a total activity variable for each day, and create a table showing these total 
+activity_day <- acc_data %>% 
+  group_by(week, day_id) %>%
+  mutate(activity_by_day = round(sum(activity_count, na.rm = TRUE), digits = 0), activity = NULL, activity_count = NULL) %>% 
+  distinct() 
+
+knitr::kable(activity_day)
+
+# There is no apparent trend in this table. Activity by day doesn't seem to necessarily associate with day of the week or # day type. 
 
 #Plot activity time course for each day and use color to indicate day of work 
+acc_data %>% 
+  ggplot(aes(x = activity, y = activity_count, group = day_id, color = day)) + 
+  geom_line(alpha = .8) +
+  labs(title = "Acitivity Time Courses", x = "Minute", y = "Activity Counts") +
+  scale_x_discrete(breaks = c(120, 240, 360,480,600,720,960,1200,1440)
+  )
   
+  
+# From this graph we could see that overall on Wednesdays, the patient has fewer activity counts that those of other days # of the week. Most activity counts per day are below 5000. 
   
  
 ```
