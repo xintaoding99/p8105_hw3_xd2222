@@ -100,15 +100,19 @@ brfss %>%
 # Two panel plot showing 2006, 2010 distribution of data value for responses among locations in NY state
 brfss %>% 
   filter(year %in% c(2006,2010), locationabbr == "NY") %>% 
-  select(year, locationdesc, response, data_value) %>% 
-  ggplot(aes(x=data_value , y=response, color=locationdesc)) +
-  geom_point() +
-  labs(title = "Data Value Across Responses Among Locations in NY", x = "Data Value", y = "Response", catpion = "data from brfss") +
-  facet_grid(~year)
+  select(year, locationdesc, response, data_value) %>%
+  ggplot(aes(fill = response, y = data_value, x = locationdesc)) +
+  geom_bar(position = "fill", stat = "identity") +
+  labs(title = "Data Value Across Responses Among Locations in NY", 
+       x = "Data Value", 
+       y = "Response", catpion = "data from brfss") +
+  facet_grid(~year) +
+  coord_flip() 
 ```
 
 ## Problem 3
 ```{r Accelerometer Data}
+# Tidying Data and Creating a New Variable
 acc_data <- read_csv("./accel_data.csv") %>% 
   janitor::clean_names() %>% 
   pivot_longer(activity_1:activity_1440,
@@ -120,15 +124,28 @@ acc_data <- read_csv("./accel_data.csv") %>%
     day %in% c("Saturday", "Sunday") ~ "weekend", 
   ))
 
-
+is.character(acc_data$day_type)
 acc_data %>% 
   count() 
 
- 
 acc_data %>% 
   colnames()
+#what's encoding with reasonable varialbe classes?
 
-# After tidying the data, there are 6 varialbes in this dataset: week, day_id, day, activity, activity_count, and day_type
-# There are 50,400 observations in this dataset
+# After tidying the data, there are 6 varialbes in this dataset: week, day_id,
+# day, activity, activity_count, and day_type There are 50,400 observations in
+# this dataset
+
+# Aggregate accross minutes to create a total activity variable for each day, and create a table showing these total
+acc_data %>% 
+  group_by(day_id) %>%
+  mutate(activity_by_day = sum(activity_count), activity = NULL, activity_count = NULL) %>% 
+  distinct() %>% 
+  knitr::kable()
+
+#Plot activity time course for each day and use color to indicate day of work 
+  
+  
+ 
 ```
 
