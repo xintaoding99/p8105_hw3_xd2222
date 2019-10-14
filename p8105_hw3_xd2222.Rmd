@@ -101,10 +101,34 @@ brfss %>%
 brfss %>% 
   filter(year %in% c(2006,2010), locationabbr == "NY") %>% 
   select(year, locationdesc, response, data_value) %>% 
-  ggplot(aes(x = data_value, y = response, color = locationdesc)) +
+  ggplot(aes(x=data_value , y=response, color=locationdesc)) +
   geom_point() +
   labs(title = "Data Value Across Responses Among Locations in NY", x = "Data Value", y = "Response", catpion = "data from brfss") +
   facet_grid(~year)
 ```
 
 ## Problem 3
+```{r Accelerometer Data}
+acc_data <- read_csv("./accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(activity_1:activity_1440,
+    names_to = "activity", 
+    values_to = "activity_count"
+  ) %>% 
+  mutate(day_type = case_when(
+    day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday") ~ "weekday",
+    day %in% c("Saturday", "Sunday") ~ "weekend", 
+  ))
+
+
+acc_data %>% 
+  count() 
+
+ 
+acc_data %>% 
+  colnames()
+
+# After tidying the data, there are 6 varialbes in this dataset: week, day_id, day, activity, activity_count, and day_type
+# There are 50,400 observations in this dataset
+```
+
