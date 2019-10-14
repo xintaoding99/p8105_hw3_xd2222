@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Probelm 1
 Exploring the dataset instacart
-```{r explore dataset}
+```{r explore instacart dataset}
 library(tidyverse)
 library(dplyr)
 library(p8105.datasets)
@@ -62,3 +62,49 @@ instacart %>%
 
 ```
 
+## Problem 2
+```{r explore BRFSS dataset }
+library(p8105.datasets)
+data("brfss_smart2010")
+brfss <- brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>% 
+  mutate(response = fct_relevel(response, c("Poor", "Fair", "Good", "Very good", "Excellent" )))
+
+#2002 data
+brfss %>% 
+  filter(year == 2002) %>% 
+  distinct(locationabbr, locationdesc) %>% 
+  count(locationabbr) %>% 
+  filter(n >= 7)
+
+# 2010 data 
+brfss %>% 
+  filter(year == 2010) %>% 
+  distinct(locationabbr, locationdesc) %>% 
+  count(locationabbr) %>% 
+  filter(n >= 7)
+# In 2002, CT, FL, MA, NV, NJ, PA were observed at 7 or more locations. In 2010, CA, CO, FL, MA, MD, NC, NE,NJ, NY, OH were observed at 7 or more locations
+
+# Spaghetti plotting to show mean data values within each state across years
+brfss %>% 
+  filter(response == "Excellent") %>% 
+  select(year, state = locationabbr, locationdesc, data_value) %>% 
+  group_by(year, state) %>% 
+  summarize(mean_data_value = round(mean(data_value), digits = 1)) %>% 
+  ggplot(aes(x = year, y = mean_data_value)) + 
+  geom_line(aes(group= state, color = state)) +
+  labs(title = "Average Data Value within Each State Across Years", x = "Year", y = "Average Data Value", catpion = "Data from brfss")
+  
+
+# Two panel plot showing 2006, 2010 distribution of data value for responses among locations in NY state
+brfss %>% 
+  filter(year %in% c(2006,2010), locationabbr == "NY") %>% 
+  select(year, locationdesc, response, data_value) %>% 
+  ggplot(aes(x = data_value, y = response, color = locationdesc)) +
+  geom_point() +
+  labs(title = "Data Value Across Responses Among Locations in NY", x = "Data Value", y = "Response", catpion = "data from brfss") +
+  facet_grid(~year)
+```
+
+## Problem 3
