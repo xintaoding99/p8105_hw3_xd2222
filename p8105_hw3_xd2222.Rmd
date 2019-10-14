@@ -9,3 +9,56 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Probelm 1
+Exploring the dataset instacart
+```{r explore dataset}
+library(tidyverse)
+library(dplyr)
+library(p8105.datasets)
+data("instacart")
+
+
+instacart %>% 
+  summarize(n_asile = n_distinct(aisle))
+  
+most_asile <- instacart %>%
+  count(aisle) %>% 
+  arrange(desc(n))
+most_asile
+# There are 134 aisles, and the "fresh vegetables" aisle is where most products are ordered from, second comes after is the "fresh fruits" aisle
+
+
+# Plotting 
+most_asile %>% 
+  filter(n > 10000) %>% 
+  arrange(desc(n)) %>% 
+  ggplot(aes(x = reorder(aisle, n), y = n)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Number of Items Ordered from Asile", x= "Aisle", y = "Number of Products") +
+  coord_flip()
+
+# Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”
+
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  group_by(aisle, product_name) %>% 
+  summarize(number = n()) %>% 
+  arrange(desc(number)) %>% 
+  filter(min_rank(desc(number)) < 4) %>% 
+  knitr::kable() 
+
+
+# Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers 
+
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(mean_hour = round(mean(order_hour_of_day),1)) %>% 
+  pivot_wider(
+    names_from = order_dow,
+    values_from = mean_hour
+  ) %>% 
+  knitr::kable(col.names = c("Product Name", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+
+```
+
